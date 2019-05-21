@@ -32,14 +32,14 @@ class OT_Export(bpy.types.Operator):
                     seams.append(l1)
                     seams.append(l2)
                     
-        ring_verts = {v.vert for v in boundary + seams}
+        # ring_verts = {v.vert for v in boundary + seams}
 
         assocs = {}
         for l in boundary + seams:
             assocs[l], = [x for x 
                 in l.link_loop_next.vert.link_loops 
                 if  x[uv_layer].uv == l.link_loop_next[uv_layer].uv 
-                and x.link_loop_next.vert in ring_verts]
+                and (x in (boundary + seams))]
 
         rings = []
         while len(assocs):
@@ -54,7 +54,7 @@ class OT_Export(bpy.types.Operator):
             rings.append(ring)
                 
         scale = self.uv_scale(bm) / 1000 # 1 unit == 1 mm
-        drawing = svgwrite.Drawing('/home/pavel/shm/test.svg', size=(1/scale, 1/scale), profile='full')
+        drawing = svgwrite.Drawing('/home/potocekp1/build/cloth_sewing/test/export.svg', size=(1/scale, 1/scale), profile='full')
         for ring in rings:
             drawing.add(drawing.polygon([(u / scale, v / scale) for (u, v) in ring],
                     stroke=svgwrite.rgb(10, 10, 16, '%'),
